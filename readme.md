@@ -29,14 +29,10 @@ Then visit `http://localhost:3000` to interact with the platform!
 ## 📐 Architecture: UML Class Diagram
 ```mermaid
 classDiagram
-    class BookingManager {
-        +List~Session~ sessions
-        +List~Booking~ bookings
-        +getSessions() List~Session~
-        +addSession(Session) Session
-        +createBooking(sessionId, name, email, studentId) Booking
-        +searchBookings(query) List~Booking~
-        +cancelBooking(id) boolean
+    class Student {
+        +String id
+        +String name
+        +String email
     }
 
     class Session {
@@ -45,7 +41,7 @@ classDiagram
         +String mentor
         +String time
         +String location
-        +int capacity
+        +int maxCapacity
         +int remainingSeats
     }
 
@@ -53,15 +49,25 @@ classDiagram
         +String id
         +String bookingRef
         +String sessionId
-        +String studentName
-        +String studentEmail
-        +String studentId
-        +String createdAt
+        +Student student
+        +DateTime createdAt
     }
 
-    BookingManager "1" *-- "*" Session : manages
-    BookingManager "1" *-- "*" Booking : tracks
-    Booking "*" --> "1" Session : references
+    class BookingManager {
+        <<Singleton>>
+        +List~Session~ sessions
+        +List~Booking~ bookings
+        +getSessions() List~Session~
+        +addSession(Session) void
+        +createBooking(sessionId, Student) Booking
+        +cancelBooking(bookingId) boolean
+        -generateRef() String
+    }
+
+    BookingManager "1" -- "*" Session : manages
+    BookingManager "1" -- "*" Booking : tracks
+    Booking "*" -- "1" Student : associated with
+    Booking "*" -- "1" Session : reserved for
 ```
 
 ## 📸 Sprint Board Evidence

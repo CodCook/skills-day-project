@@ -2,17 +2,16 @@ import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { Session } from '@/lib/store';
 
-export default function SessionCard({ session, index }: { session: Session; index: number }) {
+export default function SessionCard({ session }: { session: Session }) {
   const isFull = session.remainingSeats === 0;
   const capacityRatio = session.remainingSeats / session.capacity;
   const progressColor = isFull ? 'bg-red-500' : capacityRatio < 0.3 ? 'bg-red-400' : 'bg-gold';
-  const colSpan = index === 0 ? 'lg:col-span-2' : (index === 3 || index === 4) ? 'lg:col-span-2' : 'lg:col-span-1';
 
   return (
     <motion.div 
       whileHover={!isFull ? { scale: 1.02 } : {}}
       transition={{ duration: 0.2 }}
-      className={`glass p-6 flex flex-col justify-between shadow-sm overflow-hidden rounded-lg ${isFull ? 'grayscale opacity-75' : ''} ${colSpan}`}
+      className={`glass p-6 flex flex-col justify-between shadow-sm overflow-hidden rounded-lg ${isFull ? 'grayscale opacity-75' : ''}`}
     >
       <div>
         <h2 className="text-xl font-bold text-navy mb-2 line-clamp-2">{session.title}</h2>

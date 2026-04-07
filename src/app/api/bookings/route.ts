@@ -10,8 +10,8 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
     }
 
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(studentEmail)) {
-      return NextResponse.json({ error: 'Invalid email format' }, { status: 400 });
+    if (!studentEmail.toLowerCase().endsWith('@udst.edu.qa')) {
+      return NextResponse.json({ error: 'Email must be a valid @udst.edu.qa address' }, { status: 400 });
     }
 
     const session = store.sessions.find(s => s.id === sessionId);
@@ -24,12 +24,13 @@ export async function POST(request: Request) {
     }
 
     const existingBooking = store.bookings.find(
-      b => b.sessionId === sessionId && b.studentEmail === studentEmail
+      b => b.sessionId === sessionId && (b.studentEmail.toLowerCase() === studentEmail.toLowerCase() || b.studentId === studentId)
     );
     if (existingBooking) {
-      return NextResponse.json({ error: 'You have already booked this session' }, { status: 400 });
+      return NextResponse.json({ error: 'You have already booked this session (duplicate email or student ID)' }, { status: 400 });
     }
 
+    // Atomic-like update in JS main thread
     const bookingRef = `UDST-${Math.floor(1000 + Math.random() * 9000)}`;
     const newBooking = {
       id: crypto.randomUUID(),
@@ -65,7 +66,6 @@ export async function GET(request: Request) {
     b.studentEmail.toLowerCase() === searchTerm.toLowerCase() || 
     b.studentId === searchTerm
   );
-  // Attach session details
   const result = userBookings.map(booking => {
     const session = store.sessions.find(s => s.id === booking.sessionId);
     return { ...booking, session };

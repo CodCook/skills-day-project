@@ -37,7 +37,11 @@ const globalForStore = global as unknown as {
 export const store = globalForStore.__store || {
   sessions: [...defaultSessions],
   bookings: [] as Booking[],
-  addSession: function(data: Omit<Session, 'id' | 'remainingSeats'>) {
+};
+
+// Ensure addSession exists even if hot-reloaded from an older store state
+if (!store.addSession) {
+  store.addSession = function(data: Omit<Session, 'id' | 'remainingSeats'>) {
     const newSession: Session = {
       ...data,
       id: `s${Date.now()}`,
@@ -45,8 +49,8 @@ export const store = globalForStore.__store || {
     };
     this.sessions.push(newSession);
     return newSession;
-  }
-};
+  };
+}
 
 if (process.env.NODE_ENV !== "production") {
   globalForStore.__store = store;

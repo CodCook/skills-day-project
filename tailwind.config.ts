@@ -10,6 +10,7 @@ const config: Config = {
       colors: {
         navy: "#1B3A6B",
         gold: "#C8973A",
+        surface: "#F8F7F4", // Updated from background to surface
         background: "#F8F7F4",
       },
       borderRadius: {
@@ -27,6 +28,17 @@ const config: Config = {
       },
     },
   },
-  plugins: [],
+  plugins: [
+    function ({ addUtilities }: any) {
+      addUtilities({
+        '.glass': {
+          'backdrop-filter': 'blur(12px)',
+          '-webkit-backdrop-filter': 'blur(12px)',
+          'background-color': 'rgba(255, 255, 255, 0.7)',
+          'border': '1px solid rgba(255, 255, 255, 0.1)',
+        }
+      })
+    }
+  ],
 };
 export default config;

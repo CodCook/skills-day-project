@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { Session } from '@/lib/store';
+import { motion } from 'framer-motion';
 
 export default function Home() {
   const [sessions, setSessions] = useState<Session[]>([]);
@@ -22,36 +23,58 @@ export default function Home() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       <h1 className="text-3xl font-bold text-navy border-b-2 border-gold pb-2 inline-block">Available Sessions</h1>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {sessions.map((session) => (
-          <div key={session.id} className="card p-6 flex flex-col justify-between">
-            <div>
-              <h2 className="text-xl font-bold text-navy mb-2">{session.title}</h2>
-              <div className="text-gray-600 mb-4 space-y-1 text-sm">
-                <p>📍 {session.location}</p>
-                <p>🕒 {session.time}</p>
-              </div>
-              <div className="mb-6">
-                <span className={`px-3 py-1 rounded-full text-xs font-bold ${session.remainingSeats > 0 ? 'bg-green-100 text-green-800 border border-green-200' : 'bg-red-100 text-red-800 border border-red-200'}`}>
-                  {session.remainingSeats} / {session.capacity} Seats Available
-                </span>
-              </div>
-            </div>
-            <Link
-              href={`/book/${session.id}`}
-              className={`block text-center w-full py-2 rounded font-semibold transition-colors ${
-                session.remainingSeats === 0 
-                  ? 'bg-gray-300 text-gray-500 cursor-not-allowed border border-gray-300' 
-                  : 'bg-navy text-white hover:bg-gold hover:text-navy border border-transparent'
-              }`}
-              style={{ pointerEvents: session.remainingSeats === 0 ? 'none' : 'auto' }}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 auto-rows-[250px]">
+        {sessions.map((session, index) => {
+          const isFull = session.remainingSeats === 0;
+          const capacityRatio = session.remainingSeats / session.capacity;
+          const progressColor = isFull ? 'bg-red-500' : capacityRatio < 0.3 ? 'bg-red-400' : 'bg-gold';
+          // Bento Grid logic: first item takes more space if desired, or alternate
+          const colSpan = index === 0 ? 'lg:col-span-2' : (index === 3 || index === 4) ? 'lg:col-span-2' : 'lg:col-span-1';
+
+          return (
+            <motion.div 
+              key={session.id} 
+              whileHover={!isFull ? { scale: 1.02 } : {}}
+              transition={{ duration: 0.2 }}
+              className={`glass p-6 flex flex-col justify-between shadow-sm overflow-hidden rounded-lg ${isFull ? 'grayscale opacity-75' : ''} ${colSpan}`}
             >
-              {session.remainingSeats === 0 ? 'Session Full' : 'Book Now'}
-            </Link>
-          </div>
-        ))}
+              <div>
+                <h2 className="text-xl font-bold text-navy mb-2 line-clamp-2">{session.title}</h2>
+                <div className="text-gray-600 mb-4 space-y-1 text-sm">
+                  {session.mentor && <p className="font-medium">👨‍🏫 {session.mentor}</p>}
+                  <p>📍 {session.location}</p>
+                  <p>🕒 {session.time}</p>
+                </div>
+              </div>
+              
+              <div className="mt-auto space-y-3">
+                <div className="w-full bg-gray-200 rounded-full h-2.5 overflow-hidden">
+                  <div 
+                    className={`${progressColor} h-2.5 rounded-full transition-all duration-500`} 
+                    style={{ width: `${((session.capacity - session.remainingSeats) / session.capacity) * 100}%` }}
+                  ></div>
+                </div>
+                <div className="flex justify-between items-center text-xs font-bold text-gray-600">
+                  <span>{session.remainingSeats} / {session.capacity} Seats Available</span>
+                </div>
+                
+                <Link
+                  href={`/book/${session.id}`}
+                  className={`block text-center w-full py-2 rounded font-semibold transition-colors ${
+                    isFull 
+                      ? 'bg-gray-300 text-gray-500 cursor-not-allowed border border-gray-300' 
+                      : 'bg-navy text-white hover:bg-gold hover:text-navy border border-transparent tracking-wide'
+                  }`}
+                  style={{ pointerEvents: isFull ? 'none' : 'auto' }}
+                >
+                  {isFull ? 'Session Full' : 'Book Now'}
+                </Link>
+              </div>
+            </motion.div>
+          );
+        })}
       </div>
     </div>
   );

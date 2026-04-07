@@ -26,6 +26,7 @@ export default function RootLayout({
             <nav className="flex space-x-6">
               <Link href="/" className="hover:text-gold transition-colors">Sessions</Link>
               <Link href="/my-bookings" className="hover:text-gold transition-colors">My Bookings</Link>
+              <Link href="/admin" className="hover:text-gold transition-colors font-semibold">Admin</Link>
             </nav>
           </div>
         </header>

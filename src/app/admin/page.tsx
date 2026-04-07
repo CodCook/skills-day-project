@@ -11,11 +11,13 @@ export default function AdminPage() {
   const [time, setTime] = useState('');
   const [capacity, setCapacity] = useState('20');
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState(false);
 
   const fetchSessions = async () => {
     const res = await fetch('/api/sessions');
     const data = await res.json();
-    setSessions(data);
+    setSessions(Array.isArray(data) ? data : []);
   };
 
   useEffect(() => {
@@ -25,21 +27,36 @@ export default function AdminPage() {
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    await fetch('/api/sessions', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ 
-        title, mentor, location, time, capacity: parseInt(capacity) 
-      })
-    });
-    
-    setTitle('');
-    setMentor('');
-    setLocation('');
-    setTime('');
-    setCapacity('20');
-    setLoading(false);
-    fetchSessions();
+    setError('');
+    setSuccess(false);
+
+    try {
+      const res = await fetch('/api/sessions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          title, mentor, location, time, capacity: parseInt(capacity) 
+        })
+      });
+      
+      const data = await res.json();
+      
+      if (!res.ok) {
+        setError(data.error || 'Failed to add session');
+      } else {
+        setSuccess(true);
+        setTitle('');
+        setMentor('');
+        setLocation('');
+        setTime('');
+        setCapacity('20');
+        fetchSessions();
+      }
+    } catch (err) {
+       setError('An unexpected error occurred');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -48,6 +65,10 @@ export default function AdminPage() {
       
       <div className="glass p-6 shadow-sm rounded-lg border border-gray-100">
         <h2 className="text-xl font-bold text-navy mb-4">Add New Session</h2>
+        
+        {error && <div className="mb-4 p-3 bg-red-50 text-red-700 text-sm border border-red-200 rounded">{error}</div>}
+        {success && <div className="mb-4 p-3 bg-green-50 text-green-700 text-sm border border-green-200 rounded">Session added successfully!</div>}
+        
         <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label className="block text-sm font-medium text-gray-700">Title</label>

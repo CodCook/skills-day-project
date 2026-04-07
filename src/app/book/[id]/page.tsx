@@ -120,6 +120,7 @@ export default function BookSession({ params }: { params: { id: string } }) {
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Student ID</label>
               <input type="text" required value={studentId} onChange={e => setStudentId(e.target.value)}
+                pattern="\d{8}" maxLength={8} minLength={8} title="Student ID must be exactly 8 digits"
                 className="w-full border border-gray-300 rounded px-3 py-2 outline-none focus:border-navy focus:ring-1 focus:ring-navy" 
                 placeholder="60000000" />
             </div>

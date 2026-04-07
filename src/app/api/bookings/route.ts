@@ -14,6 +14,10 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Email must be a valid @udst.edu.qa address' }, { status: 400 });
     }
 
+    if (!/^\d{8}$/.test(studentId)) {
+      return NextResponse.json({ error: 'Student ID must be exactly 8 digits (e.g. 60304062)' }, { status: 400 });
+    }
+
     const session = store.sessions.find(s => s.id === sessionId);
     if (!session) {
       return NextResponse.json({ error: 'Session not found' }, { status: 404 });
